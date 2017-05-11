@@ -1,11 +1,13 @@
 name := "swagger-play2"
-version := "1.5.4-SNAPSHOT"
+version := "1.5.4.AN1"
 
 checksums in update := Nil
 
 scalaVersion := "2.11.8"
 
 crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.1")
+
+
 
 libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.6",
@@ -21,17 +23,21 @@ libraryDependencies ++= Seq(
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
 
-publishTo <<= version { (v: String) =>
-  val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+val nexus = "http://nexus.corp.appnexus.com/nexus/content/repositories/"
+
+publishTo := {
+  if (isSnapshot.value) {
+    Some("snaphots" at nexus + "snapshots")
+  } else {
+    Some("releases" at nexus + "releases")
+  }
 }
+
 publishArtifact in Test := false
 publishMavenStyle := true
 pomIncludeRepository := { x => false }
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+credentials := Seq(Credentials(Path.userHome / ".nexus" / ".credentials"))
+//credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 organization := "io.swagger"
 pomExtra := {
   <url>http://swagger.io</url>
